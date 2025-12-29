@@ -1,36 +1,53 @@
-import { useState } from "react";
+import { useMemo, useState } from "react"
 
-function App() {
-	const [value, setValue] = useState<number>(0);
-	const [name, setName] = useState<string>("");
-	const [nickname, setNickName] = useState<string>("");
+const getAverage = (numbers: number[]) => {
+  console.log("평균값을 계산중입니다.")
 
-	const increment = () => setValue(value + 1);
-	const decrement = () => setValue(value - 1);
+  if (numbers.length === 0) return 0
 
-	const onChangeName = (event: React.ChangeEvent<HTMLInputElement>) => setName(event.target.value);
-	const onChangeNickName = (event: React.ChangeEvent<HTMLInputElement>) => setNickName(event.target.value);
-	return (
-		<div>
-			<p>
-				현재 카운터 값은 : <b>{value}</b>
-			</p>
-			<button onClick={increment}>1 증가</button>
-			<button onClick={decrement}>1 감소</button>
-
-			<div>
-				<input type="text" onChange={onChangeName} />
-			</div>
-			<div>
-				<input type="text" onChange={onChangeNickName} />
-			</div>
-
-			<div>
-				<b>이름 : {name}</b>
-				<b>별명 : {nickname}</b>
-			</div>
-		</div>
-	);
+  const sum = numbers.reduce((acc, cur) => acc + cur)
+  return sum / numbers.length
 }
 
-export default App;
+function App() {
+  // useCallback
+  // useCallback은 useMemo와 상당히 비슷한 함수입니다. 주로 렌더링 성능을 최적화해야 하는 상황에서 사용합니다.
+  // 이 훅 (hook)을 사용하면 만들어 놓았던 함수를 재사용할 수 있습니다.
+
+  // useCallback의 첫 번째 파라미터에는 생성하고 싶은 함수를 넣고,
+  // useCallback의 두 번째 파라미터에는 배열을 넣으면 된다.
+
+  const [list, setList] = useState<number[]>([])
+  const [number, setNumber] = useState<string>("")
+
+  const onInsert = () => {
+    const newList = list.concat(parseInt(number))
+    setList(newList)
+    setNumber("")
+  }
+
+  const average = useMemo(() => getAverage(list), [list])
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={number}
+        onChange={(event) => setNumber(event.target.value)}
+      />
+      <button onClick={onInsert}>등록</button>
+
+      <ul>
+        {list.map((item: number, index: number) => {
+          return <li key={index}>{item}</li>
+        })}
+      </ul>
+
+      <div>
+        <b>평균 값: {average}</b>
+      </div>
+    </div>
+  )
+}
+
+export default App
