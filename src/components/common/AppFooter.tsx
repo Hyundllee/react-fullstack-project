@@ -1,5 +1,5 @@
 function AppFooter() {
-  return <div></div>
+  return <footer></footer>
 }
 
 export { AppFooter }
