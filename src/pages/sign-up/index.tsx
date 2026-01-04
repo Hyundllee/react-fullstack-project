@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { NavLink } from "react-router"
+import { NavLink, useNavigate } from "react-router"
 import supabase from "@/lib/supabase"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,7 +45,7 @@ const formSchema = z
   })
 
 export default function SignUp() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,25 +67,33 @@ export default function SignUp() {
     console.log("회원가입 했습니다.")
 
     if (!serviceAgreed || !privacyAgreed) {
-      // 경고 메세지 - Toast UI 발생
+      // 경고 메시지 - Toast UI 발생
       toast.warning("필수 동의항목을 체크해주세요.")
       return
     }
 
-    const { data, error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-    })
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+      })
 
-    // 회원가입 실패
-    if (error) {
-      // 에러 메세지 - Toast UI 발생
-      return
-    }
+      // 회원가입 실패
+      if (error) {
+        // 에러 메세지 - Toast UI 발생
+        toast.warning("필수 동의항목을 체크해주세요.")
+        return
+      }
 
-    // 회원가입 성공
-    if (data) {
-      // 성공 메세지 - Toast UI 발생
+      // 회원가입 성공
+      if (data) {
+        // 성공 메세지 - Toast UI 발생
+        toast.success("회원가입을 완료하였습니다.")
+        navigate("/sign-in")
+      }
+    } catch (error) {
+      console.log(error)
+      throw new Error(`${error}`)
     }
   }
 
